@@ -1,0 +1,43 @@
+variables:
+  CONTAINER_TEST_IMAGE: $CONTAINER_IMAGE:$CI_COMMIT_REF_SLUG
+  # CONTAINER_RELEASE_IMAGE: $CONTAINER_IMAGE:latest
+
+  #services:
+  #  - docker:dind
+
+stages:
+  - build
+    #  - deploy
+
+before_script:
+  - echo $CONTAINER_IMAGE
+
+build:docker-image:
+  stage: build
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: "/certs"   # for docker:dind 19.03+
+    # DOCKER_HOST: tcp://docker:2375
+  # image: docker:18.06
+  services:
+    - docker:19.03-dind
+  script:
+    - echo "Building container image - $CONTAINER_TEST_IMAGE"
+    - >
+      docker image build \
+        --build-arg "SSH_PRI_KEY=$SSH_PRI_KEY" \
+        --build-arg "SSH_RSA_SCAN=$SSH_RSA_SCAN" \
+        --build-arg "EMQX_VSN=$BUILD_EMQX_VSN" \
+        -t $CONTAINER_TEST_IMAGE -f deploy/docker/Dockerfile.ayla .
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin
+    - docker image push $CONTAINER_TEST_IMAGE
+    - docker logout
+  only:
+    - /^build-.*$/
+    - master
+    - tags
+  tags:
+    - docker
+    - build
+    - image
+    - hk
