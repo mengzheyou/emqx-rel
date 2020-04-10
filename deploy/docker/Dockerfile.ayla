@@ -1,4 +1,4 @@
-ARG BUILD_FROM=mengzyou/erlang:22.1-emqx
+ARG BUILD_FROM=mengzheyou/erlang-build:22.1-emqx
 ARG RUN_FROM=alpine:3.10
 FROM ${BUILD_FROM} AS builder
 

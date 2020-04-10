@@ -1,5 +1,5 @@
 variables:
-  CONTAINER_TEST_IMAGE: $CONTAINER_IMAGE:$CI_COMMIT_REF_SLUG
+  CONTAINER_TEST_IMAGE: ${CI_REGISTRY}/${CONTAINER_IMAGE}:${CI_COMMIT_REF_SLUG}
   # CONTAINER_RELEASE_IMAGE: $CONTAINER_IMAGE:latest
 
   #services:
@@ -25,13 +25,15 @@ build:docker-image:
     - echo "Building container image - $CONTAINER_TEST_IMAGE"
     - >
       docker image build \
+        --build-arg "BUILD_FROM=$BUILD_BASE_IMAGE" \
+        --build-arg "RUN_FROM=$BUILD_RUN_IMAGE" \
         --build-arg "SSH_PRI_KEY=$SSH_PRI_KEY" \
         --build-arg "SSH_RSA_SCAN=$SSH_RSA_SCAN" \
         --build-arg "EMQX_VSN=$BUILD_EMQX_VSN" \
         -t $CONTAINER_TEST_IMAGE -f deploy/docker/Dockerfile.ayla .
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin
+    - echo $CI_REGISTRY_TOKEN | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker image push $CONTAINER_TEST_IMAGE
-    - docker logout
+    - docker logout $CI_REGISTRY
   only:
     - /^build-.*$/
     - master
