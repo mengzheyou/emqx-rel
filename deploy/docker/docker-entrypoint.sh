@@ -103,11 +103,19 @@ if [[ -z "$EMQX_LISTENER__WS__EXTERNAL__MAX_CLIENTS" ]]; then
     export EMQX_LISTENER__WS__EXTERNAL__MAX_CLIENTS=250000
 fi
 
+
 # Fix issue #42 - export env EMQX_DASHBOARD__DEFAULT_USER__PASSWORD to configure
 # 'dashboard.default_user.password' in etc/plugins/emqx_dashboard.conf
 if [[ ! -z "$EMQX_ADMIN_PASSWORD" ]]; then
     export EMQX_DASHBOARD__DEFAULT_USER__PASSWORD=$EMQX_ADMIN_PASSWORD
 fi
+
+# ayla specific ACL rules
+
+if [[ ! -z "$EMQX_ACL_NOMATCH" ]]; then
+    export EMQX_ACL_NOMATCH="deny"
+fi
+
 
 # Catch all EMQX_ prefix environment variable and match it in configure file
 CONFIG="${_EMQX_HOME}/etc/emqx.conf"
