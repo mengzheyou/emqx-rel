@@ -112,7 +112,7 @@ fi
 
 # ayla specific ACL rules
 
-if [[ ! -z "$EMQX_ACL_NOMATCH" ]]; then
+if [[ -z "$EMQX_ACL_NOMATCH" ]]; then
     export EMQX_ACL_NOMATCH="deny"
 fi
 
