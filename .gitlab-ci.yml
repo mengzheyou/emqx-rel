@@ -47,7 +47,7 @@ build:docker-image:
 deploy:runeck-emqx-update:
   stage: deploy
   script:
-    - "curl -s -XPOST -H \"X-Rundeck-Auth-Token: ${RUNDECK_API_TOKEN}\" https://rundeck-cn.ayla.com.cn/api/18/job/2dea908c-574e-419e-9353-4fca2c0d5eee/run?option.dry-run=${RUNDECK_OPTION_DRY_RUN}"
+    - "curl -s -XPOST -H \"X-Rundeck-Auth-Token: ${RUNDECK_API_TOKEN}\" https://rundeck-cn.ayla.com.cn/api/18/job/${RUNDECK_JOB_ID}/run?option.dry-run=${RUNDECK_OPTION_DRY_RUN}"
   only:
     - master
   tags:
