@@ -25,10 +25,7 @@ build:docker-image:
     - echo "Building container image - $CONTAINER_TEST_IMAGE"
     - >
       docker image build \
-        --build-arg "BUILD_FROM=$BUILD_BASE_IMAGE" \
-        --build-arg "RUN_FROM=$BUILD_RUN_IMAGE" \
-        --build-arg "SSH_PRI_KEY=$SSH_PRI_KEY" \
-        --build-arg "SSH_RSA_SCAN=$SSH_RSA_SCAN" \
+        --build-arg "DEPS_GITLAB_TOKEN=$DEPS_GITLAB_TOKEN" \
         --build-arg "EMQX_VSN=$BUILD_EMQX_VSN" \
         -t $CONTAINER_TEST_IMAGE -f deploy/docker/Dockerfile.ayla .
     - echo $CI_REGISTRY_TOKEN | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
@@ -47,7 +44,7 @@ build:docker-image:
 deploy:runeck-emqx-update:
   stage: deploy
   script:
-    - "curl -s -XPOST -H \"X-Rundeck-Auth-Token: ${RUNDECK_API_TOKEN}\" https://rundeck-cn.ayla.com.cn/api/18/job/${RUNDECK_JOB_ID}/run?option.dry-run=${RUNDECK_OPTION_DRY_RUN}"
+    - "curl -s -XPOST -H \"X-Rundeck-Auth-Token: ${RUNDECK_API_TOKEN}\" https://rundeck-cn.ayla.com.cn/api/18/job/${RUNDECK_JOB_ID}/run"
   only:
     - master
   tags:
