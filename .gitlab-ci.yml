@@ -43,8 +43,11 @@ build:docker-image:
 
 deploy:runeck-emqx-update:
   stage: deploy
+  variables:
+    GIT_STRATEGY: none
+    RUNDECK_JOB_API: "https://rundeck-cn.ayla.com.cn/api/18/job/${RUNDECK_JOB_ID}/run"
   script:
-    - "curl -s -XPOST -H \"X-Rundeck-Auth-Token: ${RUNDECK_API_TOKEN}\" https://rundeck-cn.ayla.com.cn/api/18/job/${RUNDECK_JOB_ID}/run"
+    - "curl -s -XPOST -H \"X-Rundeck-Auth-Token: ${RUNDECK_API_TOKEN}\" $RUNDECK_JOB_API"
   only:
     - master
   tags:
