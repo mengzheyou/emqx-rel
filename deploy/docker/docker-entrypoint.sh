@@ -116,6 +116,11 @@ if [[ -z "$EMQX_ACL_NOMATCH" ]]; then
     export EMQX_ACL_NOMATCH="deny"
 fi
 
+# Not allow the internal zone's clients to bypass authentication step
+if [[ -z "$EMQX_ZONE__INTERNAL__BYPASS_AUTH_PLUGINS" ]]; then
+    export EMQX_ZONE__INTERNAL__BYPASS_AUTH_PLUGINS=false
+fi
+
 
 # Catch all EMQX_ prefix environment variable and match it in configure file
 CONFIG="${_EMQX_HOME}/etc/emqx.conf"
