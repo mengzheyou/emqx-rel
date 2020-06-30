@@ -41,6 +41,7 @@ while [[ $IDLE_TIME -lt 5 ]]; do
             tail -f /opt/emqx/log/erlang.log.${NEW_LOG_NUM} &
             [[ ! -z $(ps -ef |grep "tail -f /opt/emqx/log/erlang.log" | grep -vE "grep|erlang.log.${NEW_LOG_NUM}" | awk '{print $1}') ]] && kill $(ps -ef |grep "tail -f /opt/emqx/log/erlang.log" | grep -vE "grep|erlang.log.${NEW_LOG_NUM}" | awk '{print $1}') 
             NEW_LOG_NUM=$((NEW_LOG_NUM+1))
+            if [ $NEW_LOG_NUM -eq 6 ]; then NEW_LOG_NUM=1; fi
         fi
     else
         echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqx not running, waiting for recovery in $((25-IDLE_TIME*5)) seconds"
