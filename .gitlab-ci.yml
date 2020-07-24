@@ -20,15 +20,14 @@ build:docker-image:
   services:
     - docker:19.03-dind
   script:
-    - echo "Building container image - $CONTAINER_RELEASE_IMAGE"
+    - echo "Building container image - $CONTAINER_TEST_IMAGE"
     - >
       docker image build \
         --build-arg "DEPS_GITLAB_TOKEN=$DEPS_GITLAB_TOKEN" \
         --build-arg "EMQX_VSN=$BUILD_EMQX_VSN" \
-        -t $CONTAINER_RELEASE_IMAGE -f deploy/docker/Dockerfile.ayla .
+        -t $CONTAINER_TEST_IMAGE -f deploy/docker/Dockerfile.ayla .
     - echo $CI_REGISTRY_TOKEN | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
-    - docker image push $CONTAINER_RELEASE_IMAGE
-    - docker image rm CONTAINER_RELEASE_IMAGE
+    - docker image push $CONTAINER_TEST_IMAGE
     - docker logout $CI_REGISTRY
   only:
     - /^build[-|/].+$/
@@ -47,14 +46,15 @@ build:docker-image-rel:
   services:
     - docker:19.03-dind
   script:
-    - echo "Building container image - $CONTAINER_TEST_IMAGE"
+    - echo "Building container image - $CONTAINER_RELEASE_IMAGE"
     - >
       docker image build --no-cache \
         --build-arg "DEPS_GITLAB_TOKEN=$DEPS_GITLAB_TOKEN" \
         --build-arg "EMQX_VSN=$BUILD_EMQX_VSN" \
-        -t $CONTAINER_TEST_IMAGE -f deploy/docker/Dockerfile.ayla .
+        -t $CONTAINER_RELEASE_IMAGE -f deploy/docker/Dockerfile.ayla .
     - echo $CI_REGISTRY_TOKEN | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
-    - docker image push $CONTAINER_TEST_IMAGE
+    - docker image push $CONTAINER_RELEASE_IMAGE
+    - docker image rm $CONTAINER_RELEASE_IMAGE
     - docker logout $CI_REGISTRY
   only:
     - /^(\d+\.)?(\d+\.)?(\d+)(-pre|-rc)?$/
