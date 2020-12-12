@@ -43,7 +43,7 @@ node {
 
     stage('Build Image') {
         /* This builds the actual image; synonymous to docker build on the command line */
-        docker.build("${imageName}", "-f ${DOCKER_FILE_LOCATION} ${DOCKER_CONTEXT}")
+        //docker.build("${imageName}", "-f ${DOCKER_FILE_LOCATION} ${DOCKER_CONTEXT}")
         currentBuild.description = "${DOCKER_REPO}/${imageName}:${version}"
         app = docker.build("${DOCKER_REPO}/${imageName}:${version}"
                 , "--build-arg DEPS_GITHUB_USER=${DEPS_GITHUB_USER} --build-arg DEPS_GITHUB_TOKEN=${DEPS_GITHUB_TOKEN}, "
