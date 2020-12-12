@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  emqx-ayla:
+    image: emqx:local
+    container_name: emqx
+    environment: 
+      - AYLA_AUTH_ENDPOINT=http://host.docker.internal:8080
+      # broker secret and appid
+      - AYLA_HMAC_SECRET_ENV_VAR=4cgfgebd57201f9g2915588d681d4891f7gcc06b7444777cg5beba728d0bg560e9dcf7a4bg47c739g111a8e0bd7e4ccc3959g86e85814bgd97cf5f6219b25g04
+      - AYLA_HMAC_APPID_ENV_VAR=mqtt_broker
+      # DNC secret and appid
+      - AYLA_HMAC_SECRET_DNC_ENV_VAR=50453202302862c51b4a80d2b3e096a3abf4038738439f52bb0c151e732e043fdc217d10b22107b92d708cf18486a21a6cf7ad914c1f4d0690c130b0e6127437
+      - AYLA_HMAC_APPID_DNC_ENV_VAR=dncService
+    ports:
+      - "1883:1883"
+      - "8883:8883"
+      - "18083:18083"
+    restart: always
