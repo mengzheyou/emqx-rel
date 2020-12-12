@@ -22,7 +22,7 @@ node {
     def app
     //def version=env.BUILD_NUMBER
 	def imageName  = 'dnc-emqx-rel'
-	def DOCKER_CONTEXT = "./dnc-emqx-rel"
+	def DOCKER_CONTEXT = "./DNC-emqx-rel"
     def DOCKER_FILE_LOCATION = "./DNC-emqx-rel/deploy/docker/aylanetworks.Dockerfile"
     def DOCKER_REGISTRY = "https://harbor-blue.aylamgmt.com:443"
     def DOCKER_CREDS = "harbor-blue"
