@@ -40,13 +40,6 @@ node {
             userRemoteConfigs: [[url: "git@github.com:AylaNetworks/DNC-emqx-rel.git"]]
         ])
     }
-    stage('Replace gitlab repo to github repo') {
-        dir('DNC-emqx-rel') {
-            sh "ls -l"
-            sh "./deploy/docker/sed.sh"
-            sh "cat rebar.config"
-        }
-    }
 
     stage('Build Image') {
         /* This builds the actual image; synonymous to docker build on the command line */
