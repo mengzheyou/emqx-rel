@@ -32,6 +32,8 @@ RUN echo "machine ${DEPS_GITHUB_HOST}" > ~/.netrc \
     echo "password ${DEPS_GITHUB_TOKEN}" >> ~/.netrc \
     cat ~/.netrc
 
+RUN mv deploy/docker/rebar.config rebar.config
+
 RUN make ${EMQX_NAME} DEBUG=1 
 
 FROM $RUN_FROM
