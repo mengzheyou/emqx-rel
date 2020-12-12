@@ -43,7 +43,7 @@ node {
     stage('Replace gitlab repo to github repo') {
         dir('DNC-emqx-rel') {
             sh "ls -l"
-            sh "./sed.sh"
+            sh "./deploy/docker/sed.sh"
             sh "cat rebar.config"
         }
     }
