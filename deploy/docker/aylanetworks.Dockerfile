@@ -4,9 +4,9 @@ FROM ${BUILD_FROM} AS builder
 
 ARG EMQX_VSN=v4.0.5
 ARG EMQX_NAME=emqx
-ARG DEPS_GITLAB_HOST=github.com
-ARG DEPS_GITLAB_USER=
-ARG DEPS_GITLAB_TOKEN=
+ARG DEPS_GITHUB_HOST=github.com
+ARG DEPS_GITHUB_USER=
+ARG DEPS_GITHUB_TOKEN=
 
 RUN apk add --no-cache git \
 curl \
@@ -27,9 +27,9 @@ COPY . .
 
 ENV EMQX_DEPS_DEFAULT_VSN="$EMQX_VSN"
 
-RUN echo "machine ${DEPS_GITLAB_HOST}" > ~/.netrc \
-    echo "login ${DEPS_GITLAB_USER}" >> ~/.netrc \
-    echo "password ${DEPS_GITLAB_TOKEN}" >> ~/.netrc \
+RUN echo "machine ${DEPS_GITHUB_HOST}" > ~/.netrc \
+    echo "login ${DEPS_GITHUB_USER}" >> ~/.netrc \
+    echo "password ${DEPS_GITHUB_TOKEN}" >> ~/.netrc \
     cat ~/.netrc
 
 RUN make ${EMQX_NAME} DEBUG=1 
