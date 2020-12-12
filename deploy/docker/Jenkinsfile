@@ -42,7 +42,8 @@ node {
     }
     stage('Replace gitlab repo to github repo') {
         dir('DNC-emqx-rel') {
-            sh "sed -i '' 's/gitlab.ayla.com.cn\\/cloudplatform\\/emq_plugin.git/github.com\\/Aylanetworks\\/DNC-emqx-plugin.git/'  rebar.config"
+            sh "ls -l"
+            sh "sed -i \"\" 's/gitlab.ayla.com.cn\\/cloudplatform\\/emq_plugin.git/github.com\\/Aylanetworks\\/DNC-emqx-plugin.git/'  rebar.config"
             sh "cat rebar.config"
         }
     }
