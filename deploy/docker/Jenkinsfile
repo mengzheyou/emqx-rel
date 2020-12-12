@@ -1,0 +1,69 @@
+#!/usr/bin/env groovy
+
+properties([
+    buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '7')),
+    disableConcurrentBuilds(), [$class: 'GithubProjectProperty', displayName: '', projectUrlStr: 'https://github.com/AylaNetworks/aylalabs/'],
+    parameters([
+
+        string(defaultValue: "master",
+            description: '''GitHub branch to build.''',
+            name: 'GIT_BRANCH',
+            trim: true),
+
+        string(defaultValue: "1.1.2",
+                description: '''docker version.''',
+                name: 'version',
+                trim: true),
+    ])
+])
+
+node {
+	/* Docker Image */
+    def app
+    //def version=env.BUILD_NUMBER
+	def imageName  = 'DNC-emqx-rel'
+	def DOCKER_CONTEXT = "./DNC-emqx-rel"
+    def DOCKER_FILE_LOCATION = "./DNC-emqx-rel/deploy/aylanetworks.Dockerfile"
+    def DOCKER_REGISTRY = "https://harbor-blue.aylamgmt.com:443"
+    def DOCKER_CREDS = "harbor-blue"
+    def DOCKER_REPO = "DNC-emqx-rel" //TBD
+
+    stage('Clone repository') {
+        deleteDir()
+        checkout scm
+        checkout([
+            $class: 'GitSCM',
+            branches: [[name: "*/${GIT_BRANCH}"]],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: "DNC-emqx-rel"]],
+            submoduleCfg: [],
+            userRemoteConfigs: [[url: "git@github.com:AylaNetworks/DNC-emqx-rel.git"]]
+        ])
+    }
+    stage('Replace gitlab repo to github repo') {
+        dir('DNC-emqx-rel') {
+            sh "sed -i '' 's/gitlab.ayla.com.cn\\/cloudplatform\\/emq_plugin.git/github.com\\/Aylanetworks\\/DNC-emqx-plugin.git/'  rebar.config"
+            sh "cat rebar.config"
+        }
+    }
+
+    stage('Build Image') {
+        /* This builds the actual image; synonymous to docker build on the command line */
+        docker.build("${imageName}", "-f ${DOCKER_FILE_LOCATION} ${DOCKER_CONTEXT}")
+        currentBuild.description = "${DOCKER_REPO}/${imageName}:${version}"
+        app = docker.build("${DOCKER_REPO}/${imageName}:${version}"
+                , "--build-arg DEPS_GITHUB_USER=${DEPS_GITHUB_USER} --build-arg DEPS_GITHUB_TOKEN=${DEPS_GITHUB_TOKEN}, "
+                ,"-f ${DOCKER_FILE_LOCATION} ${DOCKER_CONTEXT}")
+    }
+
+    stage('Push Image') {
+        /* Finally, we'll push the image with two tags:
+         * First, the incremental build number from Jenkins
+         * Second, the 'latest' tag.
+         * Pushing multiple tags is cheap, as all the layers are reused. */
+        docker.withRegistry( DOCKER_REGISTRY , DOCKER_CREDS ) {
+            app.push("${version}")
+            app.push("latest")
+        }
+    }
+}
