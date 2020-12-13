@@ -1,4 +1,4 @@
-ARG BUILD_FROM=erlang:22.1-alpine
+ARG BUILD_FROM=releases_erlang22.1
 ARG RUN_FROM=alpine:3.10
 FROM ${BUILD_FROM} AS builder
 
@@ -8,19 +8,6 @@ ARG DEPS_GITHUB_HOST=github.com
 ARG DEPS_GITHUB_USER=
 ARG DEPS_GITHUB_TOKEN=
 
-RUN apk add --no-cache git \
-curl \
-gcc \
-g++ \
-make \
-perl \
-ncurses-dev \
-openssl-dev \
-coreutils \
-bsd-compat-headers \
-libc-dev \
-libstdc++ \
-openssh
 
 WORKDIR /codes
 COPY . .
@@ -32,7 +19,7 @@ RUN echo "machine ${DEPS_GITHUB_HOST}" > ~/.netrc \
     echo "password ${DEPS_GITHUB_TOKEN}" >> ~/.netrc \
     cat ~/.netrc
 
-RUN mv deploy/docker/rebar.config rebar.config
+RUN mv deploy/docker/aylanetworks/rebar.config rebar.config
 
 RUN make ${EMQX_NAME} DEBUG=1 
 

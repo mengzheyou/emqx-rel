@@ -14,19 +14,37 @@ properties([
                 description: '''docker version.''',
                 name: 'version',
                 trim: true),
+
+        string(defaultValue: "",
+                description: '''Github user''',
+                name: 'DEPS_GITHUB_USER',
+                trim: true),
+
+        password(defaultValue: "",
+                description: '''Github token''',
+                name: 'DEPS_GITHUB_TOKEN',
+                trim: true),
     ])
 ])
 
 node {
 	/* Docker Image */
+
+//def base image
+    def baseImageName  = 'releases_erlang22.1'
+    def BASE_DOCKER_FILE_LOCATION = "./DNC-emqx-rel/deploy/docker/aylanetworks/base_image.Dockerfile"
+
+
     def app
     //def version=env.BUILD_NUMBER
 	def imageName  = 'dnc-emqx-rel'
 	def DOCKER_CONTEXT = "./DNC-emqx-rel"
-    def DOCKER_FILE_LOCATION = "./DNC-emqx-rel/deploy/docker/aylanetworks.Dockerfile"
+    def DOCKER_FILE_LOCATION = "./DNC-emqx-rel/deploy/docker/aylanetworks/aylanetworks.Dockerfile"
     def DOCKER_REGISTRY = "https://harbor-blue.aylamgmt.com:443"
     def DOCKER_CREDS = "harbor-blue"
-    def DOCKER_REPO = "dnc-emqx-rel" //TBD
+    def DOCKER_REPO = baseImageName
+
+
 
     stage('Clone repository') {
         deleteDir()
@@ -39,6 +57,15 @@ node {
             submoduleCfg: [],
             userRemoteConfigs: [[url: "git@github.com:AylaNetworks/DNC-emqx-rel.git"]]
         ])
+    }
+
+    stage('Build Base Image') {
+        /* This builds the actual image; synonymous to docker build on the command line */
+        docker.build("${baseImageName}", "-f ${BASE_DOCKER_FILE_LOCATION} ${DOCKER_CONTEXT}")
+        //currentBuild.description = "${DOCKER_REPO}/${imageName}:${version}"
+        //app = docker.build("${DOCKER_REPO}/${imageName}:${version}"
+        //       , "--build-arg DEPS_GITHUB_USER=${DEPS_GITHUB_USER} --build-arg DEPS_GITHUB_TOKEN=${DEPS_GITHUB_TOKEN} "
+        //        + "-f ${DOCKER_FILE_LOCATION} ${DOCKER_CONTEXT}")
     }
 
     stage('Build Image') {
