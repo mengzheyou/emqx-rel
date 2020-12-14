@@ -64,15 +64,23 @@ build:docker-image-rel:
     - image
     - hk
 
-deploy:runeck-emqx-update:
+deploy:runeck-upgrade:
   stage: deploy
+  image: ${CD_IMAGE_RDCLI}
   variables:
     GIT_STRATEGY: none
     RUNDECK_JOB_API: "https://rundeck-cn.ayla.com.cn/api/18/job/${RUNDECK_JOB_ID}/run"
   script:
-    - "curl -s -XPOST -H \"X-Rundeck-Auth-Token: ${RUNDECK_API_TOKEN}\" $RUNDECK_JOB_API"
+    - |
+      if [ "$CD_THANOS_UPGRADE_ENABLE" = "yes" ]; then
+        echo "Trigger Rundeck Upgrade Job - ${RD_URL}/${RD_THANOS_PROJECT}/${RD_THANOS_JOB}"
+        rd run -p ${RD_THANOS_PROJECT} -j ${RD_THANOS_JOB}
+      else
+        echo "Disabled Thanos env upgrade."
+      fi
   only:
     - master
   tags:
-    - ci
-    - shell
+    - docker
+    - build
+    - hk
