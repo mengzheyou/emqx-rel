@@ -1,0 +1,39 @@
+# to_gitlab.yml
+name: Push master or develop to GitLab
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  to_gitlab:
+    name: Push to GitLab after PR merge
+    runs-on: ubuntu-latest
+    env:
+      REPO_GROUP: cloudplatform
+    if: ${{ github.repository_owner == 'AylaAsia' }}
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+      with:
+        # WARNING: fetch-depth has to be large enough in order to find the common ancestor of commit logs in both of GitHub and GitLab.
+        # If it fails to push to GitLab, check if there are more than 100 new commits in GitHub. If yes, increase this value and run again.
+        fetch-depth: 100
+
+    - name: Change repository group name for common libraries
+      if: ${{ startsWith(github.repository, 'AylaAsia/ayla-') || startsWith(github.repository, 'AylaAsia/ayla_') }}
+      run: echo "REPO_GROUP=comlibs" >> $GITHUB_ENV
+
+    - name: Setup repository name
+      run: echo "REPO_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+
+    - name: Push code to GitLab
+      run: |
+        echo push to GitLab - $REPO_GROUP/$REPO_NAME:$GITHUB_REF
+        git remote add gitlab https://gitlab-ci-token:${{ secrets.GITLAB_ACCESS_TOKEN }}@gitlab.ayla.com.cn/$REPO_GROUP/$REPO_NAME.git
+        git push gitlab "$GITHUB_REF"

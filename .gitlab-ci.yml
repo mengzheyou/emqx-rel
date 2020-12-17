@@ -1,0 +1,78 @@
+variables:
+  CONTAINER_TEST_IMAGE: ${CI_REGISTRY}/${CONTAINER_IMAGE}:${CI_COMMIT_REF_SLUG}
+  CONTAINER_RELEASE_IMAGE: ${CI_REGISTRY}/${CONTAINER_IMAGE}:${CI_COMMIT_TAG}
+
+  #services:
+  #  - docker:dind
+
+stages:
+  - build
+  - deploy
+
+before_script:
+  - echo $CONTAINER_IMAGE
+
+build:docker-image:
+  stage: build
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: "/certs"   # for docker:dind 19.03+
+  services:
+    - docker:19.03-dind
+  script:
+    - echo "Building container image - $CONTAINER_TEST_IMAGE"
+    - >
+      docker image build \
+        --build-arg "DEPS_GITLAB_TOKEN=$DEPS_GITLAB_TOKEN" \
+        --build-arg "EMQX_VSN=$BUILD_EMQX_VSN" \
+        -t $CONTAINER_TEST_IMAGE -f deploy/docker/Dockerfile.ayla .
+    - echo $CI_REGISTRY_TOKEN | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+    - docker image push $CONTAINER_TEST_IMAGE
+    - docker logout $CI_REGISTRY
+  only:
+    - /^build[-|/].+$/
+    - master
+  tags:
+    - docker
+    - build
+    - image
+    - hk
+
+build:docker-image-rel:
+  stage: build
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: "/certs"   # for docker:dind 19.03+
+  services:
+    - docker:19.03-dind
+  script:
+    - echo "Building container image - $CONTAINER_RELEASE_IMAGE"
+    - >
+      docker image build --no-cache \
+        --build-arg "DEPS_GITLAB_TOKEN=$DEPS_GITLAB_TOKEN" \
+        --build-arg "EMQX_VSN=$BUILD_EMQX_VSN" \
+        -t $CONTAINER_RELEASE_IMAGE -f deploy/docker/Dockerfile.ayla .
+    - echo $CI_REGISTRY_TOKEN | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+    - docker image push $CONTAINER_RELEASE_IMAGE
+    - docker image rm $CONTAINER_RELEASE_IMAGE
+    - docker logout $CI_REGISTRY
+  only:
+    - /^(\d+\.)?(\d+\.)?(\d+)(-pre|-rc)?$/
+  tags:
+    - docker
+    - build
+    - image
+    - hk
+
+deploy:runeck-emqx-update:
+  stage: deploy
+  variables:
+    GIT_STRATEGY: none
+    RUNDECK_JOB_API: "https://rundeck-cn.ayla.com.cn/api/18/job/${RUNDECK_JOB_ID}/run"
+  script:
+    - "curl -s -XPOST -H \"X-Rundeck-Auth-Token: ${RUNDECK_API_TOKEN}\" $RUNDECK_JOB_API"
+  only:
+    - master
+  tags:
+    - ci
+    - shell
