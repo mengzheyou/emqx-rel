@@ -13,10 +13,9 @@ COPY . .
 
 ENV EMQX_DEPS_DEFAULT_VSN="$EMQX_VSN"
 
-RUN echo "machine ${DEPS_GITLAB_HOST}" > ~/.netrc \
-    echo "login ${DEPS_GITLAB_USER}" >> ~/.netrc \
-    echo "password ${DEPS_GITLAB_TOKEN}" >> ~/.netrc \
-    cat ~/.netrc
+RUN echo "machine ${DEPS_GITLAB_HOST}" > ~/.netrc && \
+    echo "login ${DEPS_GITLAB_USER}" >> ~/.netrc && \
+    echo "password ${DEPS_GITLAB_TOKEN}" >> ~/.netrc
 
 RUN make ${EMQX_NAME}
 
