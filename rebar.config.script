@@ -27,12 +27,42 @@ HooksNeededByElixir = {provider_hooks, [{pre, [{compile, {ex, compile}}]}]},
 OptsNeededByElixir = {elixir_opts, [{env, dev}]},
 
 Kf = fun(K, L) -> {K, V} = lists:keyfind(K, 1, L), V end,
-{ElixirDeps, CONFIG1} = case Kf(elixir_deps, CONFIG0) of
-                            false ->{[], CONFIG0};
-                            [] -> {[], CONFIG0};
+
+%% replace ayla_auth
+AylaBranchKey = case os:getenv("AYLA_AUTH_BRANCH_KEY") of
+                    false -> branch;
+                    [] -> branch;
+                    TheBranchKey -> case string:to_lower(TheBranchKey) of
+                                        "branch" -> list_to_atom("branch");
+                                        "tag" -> list_to_atom("tag");
+                                        _ -> list_to_atom("branch")
+                                    end
+                end,
+
+AylaBranchValue = case os:getenv("AYLA_AUTH_BRANCH") of
+                    false -> "master";
+                    [] -> "master";
+                    TheBranch -> TheBranch
+                end,
+
+AylaAuthDep = [{ayla_auth,
+                {git, "https://gitlab.ayla.com.cn/cloudplatform/emq_plugin.git",
+                    {AylaBranchKey, AylaBranchValue}}}],
+
+CONFIG_AYLA = case lists:keysearch(deps, 1, CONFIG) of
+                    {value, {deps, Deps}} ->
+                        NDeps = AylaAuthDep ++ Deps,
+                        lists:keyreplace(deps, 1, CONFIG, {deps, NDeps});
+                    false ->
+                        CONFIG
+                end,
+
+{ElixirDeps, CONFIG1} = case Kf(elixir_deps, CONFIG_AYLA) of
+                            false ->{[], CONFIG_AYLA};
+                            [] -> {[], CONFIG_AYLA};
                             ElixirDeps0 ->
-                                Plugins = Kf(plugins, CONFIG0),
-                                NewConfig = lists:keydelete(plugins, 1, CONFIG0),
+                                Plugins = Kf(plugins, CONFIG_AYLA),
+                                NewConfig = lists:keydelete(plugins, 1, CONFIG_AYLA),
                                 Plugins1 = {plugins, PluginsNeededByElixir ++ Plugins},
                                 {ElixirDeps0,
                                  [Plugins1, HooksNeededByElixir, OptsNeededByElixir | NewConfig]}
