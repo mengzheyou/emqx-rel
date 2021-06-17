@@ -28,7 +28,7 @@ OptsNeededByElixir = {elixir_opts, [{env, dev}]},
 
 Kf = fun(K, L) -> {K, V} = lists:keyfind(K, 1, L), V end,
 
-%% replace ayla_auth
+%% add ayla_auth
 AylaBranchKey = case os:getenv("AYLA_AUTH_BRANCH_KEY") of
                     false -> branch;
                     [] -> branch;
