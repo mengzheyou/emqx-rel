@@ -1,6 +1,10 @@
+include:
+  local: ayla-plugin-config.yml
+
 variables:
   CONTAINER_TEST_IMAGE: ${CI_REGISTRY}/${CONTAINER_IMAGE}:${CI_COMMIT_REF_SLUG}
   CONTAINER_RELEASE_IMAGE: ${CI_REGISTRY}/${CONTAINER_IMAGE}:${CI_COMMIT_TAG}
+
 
   #services:
   #  - docker:dind
