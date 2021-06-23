@@ -1,5 +1,5 @@
 include:
-  local: ayla-plugin-config.yml
+  local: 'ayla-plugin-config.yml'
 
 variables:
   CONTAINER_TEST_IMAGE: ${CI_REGISTRY}/${CONTAINER_IMAGE}:${CI_COMMIT_REF_SLUG}
@@ -28,6 +28,8 @@ build:docker-image:
     - >
       docker image build \
         --build-arg "DEPS_GITLAB_TOKEN=$DEPS_GITLAB_TOKEN" \
+        --build-arg "AYLA_AUTH_BRANCH_KEY=$AYLA_AUTH_BRANCH_KEY" \
+        --build-arg "AYLA_AUTH_BRANCH=$AYLA_AUTH_BRANCH" \
 #        --build-arg "EMQX_VSN=$BUILD_EMQX_VSN" \
         -t $CONTAINER_TEST_IMAGE -f deploy/docker/Dockerfile.ayla .
     - echo $CI_REGISTRY_TOKEN | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
@@ -54,6 +56,8 @@ build:docker-image-rel:
     - >
       docker image build --no-cache \
         --build-arg "DEPS_GITLAB_TOKEN=$DEPS_GITLAB_TOKEN" \
+        --build-arg "AYLA_AUTH_BRANCH_KEY=$AYLA_AUTH_BRANCH_KEY" \
+        --build-arg "AYLA_AUTH_BRANCH=$AYLA_AUTH_BRANCH" \
 #        --build-arg "EMQX_VSN=$BUILD_EMQX_VSN" \
         -t $CONTAINER_RELEASE_IMAGE -f deploy/docker/Dockerfile.ayla .
     - echo $CI_REGISTRY_TOKEN | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
