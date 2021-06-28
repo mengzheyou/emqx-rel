@@ -32,6 +32,8 @@ build:docker-image:
   only:
     - /^build[-|/].+$/
     - master
+    - develop
+    - /^\d\.\d\.\d-SNAPSHOT$/
   tags:
     - docker
     - build
