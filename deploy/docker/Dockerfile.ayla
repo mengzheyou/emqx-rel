@@ -4,6 +4,8 @@ FROM ${BUILD_FROM} AS builder
 
 ARG EMQX_VSN=v4.0.7
 ARG EMQX_NAME=emqx
+ARG AYLA_AUTH_BRANCH_KEY=branch
+ARG AYLA_AUTH_BRANCH=develop
 ARG DEPS_GITLAB_HOST=gitlab.ayla.com.cn
 ARG DEPS_GITLAB_USER=gitlab-ci
 ARG DEPS_GITLAB_TOKEN
@@ -27,6 +29,8 @@ LABEL org.label-schema.docker.dockerfile="Dockerfile" \
     org.label-schema.license="GNU" \
     org.label-schema.name="emqx" \
     org.label-schema.version=${EMQX_VSN} \
+    org.label-schema.auth-plugin-key=${AYLA_AUTH_BRANCH_KEY} \
+    org.label-schema.auth-plugin-version=${AYLA_AUTH_BRANCH} \
     org.label-schema.description="EMQ (Erlang MQTT Broker) is a distributed, massively scalable, highly extensible MQTT messaging broker written in Erlang/OTP." \
     org.label-schema.url="http://emqx.io" \
     org.label-schema.vcs-type="Git" \
