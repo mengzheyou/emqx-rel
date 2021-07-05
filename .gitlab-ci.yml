@@ -30,7 +30,6 @@ build:docker-image:
         --build-arg "DEPS_GITLAB_TOKEN=$DEPS_GITLAB_TOKEN" \
         --build-arg "AYLA_AUTH_BRANCH_KEY=$AYLA_AUTH_BRANCH_KEY" \
         --build-arg "AYLA_AUTH_BRANCH=$AYLA_AUTH_BRANCH" \
-#        --build-arg "EMQX_VSN=$BUILD_EMQX_VSN" \
         -t $CONTAINER_TEST_IMAGE -f deploy/docker/Dockerfile.ayla .
     - echo $CI_REGISTRY_TOKEN | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker image push $CONTAINER_TEST_IMAGE
@@ -60,7 +59,6 @@ build:docker-image-rel:
         --build-arg "DEPS_GITLAB_TOKEN=$DEPS_GITLAB_TOKEN" \
         --build-arg "AYLA_AUTH_BRANCH_KEY=$AYLA_AUTH_BRANCH_KEY" \
         --build-arg "AYLA_AUTH_BRANCH=$AYLA_AUTH_BRANCH" \
-#        --build-arg "EMQX_VSN=$BUILD_EMQX_VSN" \
         -t $CONTAINER_RELEASE_IMAGE -f deploy/docker/Dockerfile.ayla .
     - echo $CI_REGISTRY_TOKEN | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker image push $CONTAINER_RELEASE_IMAGE
