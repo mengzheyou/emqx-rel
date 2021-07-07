@@ -45,6 +45,33 @@ build:docker-image:
     - image
     - hk
 
+build:docker-image-release-snapshot:
+  stage: build
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: "/certs"   # for docker:dind 19.03+
+  services:
+    - docker:19.03-dind
+  script:
+    - export IMAGE_NAME=${CI_REGISTRY}/${CONTAINER_IMAGE}:$(echo $CI_COMMIT_REF_NAME | cut -d '/' -f 2)-SNAPSHOT
+    - echo "Building container image - $IMAGE_NAME"
+    - >
+      docker image build \
+        --build-arg "DEPS_GITLAB_TOKEN=$DEPS_GITLAB_TOKEN" \
+        --build-arg "AYLA_AUTH_BRANCH_KEY=$AYLA_AUTH_BRANCH_KEY" \
+        --build-arg "AYLA_AUTH_BRANCH=$AYLA_AUTH_BRANCH" \
+        -t $IMAGE_NAME -f deploy/docker/Dockerfile.ayla .
+    - echo $CI_REGISTRY_TOKEN | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+    - docker image push $IMAGE_NAME
+    - docker logout $CI_REGISTRY
+  only:
+    - /^release[-|/].+$/
+  tags:
+    - docker
+    - build
+    - image
+    - hk
+
 build:docker-image-rel:
   stage: build
   variables:
